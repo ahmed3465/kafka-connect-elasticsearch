@@ -178,13 +178,15 @@ public class DataConverter {
       id = record.topic()
            + "+" + String.valueOf((int) record.kafkaPartition())
            + "+" + String.valueOf(record.kafkaOffset());
+    } else if (record.key() == null) {
+      id = null;
     } else {
       id = convertKey(record.keySchema(), record.key());
     }
 
     final String payload = getPayload(record, ignoreSchema);
     final Long version = ignoreKey ? null : record.kafkaOffset();
-    return new IndexableRecord(new Key(index, type, id), payload, version);
+    return new IndexableRecord(new Key(index, type, id), payload, (id == null ? null : version));
   }
 
   private String getPayload(SinkRecord record, boolean ignoreSchema) {
